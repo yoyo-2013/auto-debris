@@ -1,0 +1,10 @@
+{
+  "Name": "modding",
+  "Author": "yoyo",
+  "Version": "1.0.2",
+  "Description": "test",
+  "UniqueID": "yoyo.modding",
+  "EntryDll": "modding.dll",
+  "MinimumApiVersion": "4.0.0",
+  "UpdateKeys": []
+}
