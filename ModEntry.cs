@@ -19,8 +19,45 @@ namespace modding
         public override void Entry(IModHelper helper)
         {
             helper.Events.Input.ButtonPressed += this.OnButtonPressed;
+            helper.Events.GameLoop.UpdateTicked += this.OnUpdateTicked;
 
         }
+
+        bool startUsingTool = false;
+
+        private void OnUpdateTicked(object? sender, UpdateTickedEventArgs e)
+        {
+            if (!Context.IsWorldReady)
+                return;
+
+            var player = Game1.player;
+
+            if(player.UsingTool)
+            {
+                this.startUsingTool = true;    
+            }
+            if (startUsingTool && !player.UsingTool)
+            {
+
+
+                this.Monitor.Log($"tick: stopped using tool", LogLevel.Debug);
+                startUsingTool = false;
+
+
+                var currentMap = Game1.currentLocation;
+                var (debris, vector) = FindNearestDebris(player, currentMap);
+                if (debris == null) return;
+
+                player.controller = new PathFindController(
+                    c: player,
+                    location: currentMap,
+                    endPoint: new Point((int)vector.X + 1, (int)vector.Y),
+                    finalFacingDirection: 3,
+                    endBehaviorFunction: (character, location) => RemoveDebris(player, debris));
+
+            }
+        }
+
         private void OnButtonPressed(object? sender, ButtonPressedEventArgs e)
         {
             if (!Context.IsWorldReady)
@@ -124,6 +161,7 @@ namespace modding
                     player
                 );
                 player.UsingTool = true;
+                
             }
 
         }
