@@ -7,10 +7,17 @@ Auto remove debris in the first day.
 
 ## Tasks
 
-- Make the player go towards the nearest piece of debris upon the user clicking D and removing the debris using the correct tool.
-  - understand how to walk in game
-    - where is the player position
-  - understand how to get list of debris in game, inlcudes where it is (coords), and what is the type.
-  - understand how to select and use tools
-  - how to trigger the mod
-  - easiest way to get to a position
+- [x] Make the player go towards the nearest piece of debris upon the user clicking D and removing the debris using the correct tool.
+  - [x] understand how to walk in game
+    - [x] where is the player position
+  - [x] understand how to get list of debris in game, inlcudes where it is (coords), and what is the type.
+  - [x] understand how to select and use tools
+  - [x] how to trigger the mod
+  - [x] easiest way to get to a position
+- [x] work on twig 
+- [ ] work on weeds
+- [ ] Make the player continuesly removing stone, until user click the I again.
+  - [ ] figure out how to make the player start the second round without user input
+  - [ ] adjust the position around the stone, so player won't stucked much
+  - [ ] how to stop using I again?
+

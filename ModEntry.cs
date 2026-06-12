@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.Serialization;
+using System.Security.AccessControl;
 using System.Xml.Schema;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -18,10 +19,10 @@ namespace modding
         public override void Entry(IModHelper helper)
         {
             helper.Events.Input.ButtonPressed += this.OnButtonPressed;
+
         }
         private void OnButtonPressed(object? sender, ButtonPressedEventArgs e)
         {
-            // ignore if player hasn't loaded a save yet
             if (!Context.IsWorldReady)
                 return;
 
@@ -30,78 +31,101 @@ namespace modding
             if (player.currentLocation.Name != "Farm")
                 return;
 
-            this.Monitor.Log($"You pressed {e.Button}.", LogLevel.Debug);
-
             var currentMap = Game1.currentLocation;
-
-            var playerPosition = player.TilePoint;
-
-            var playerVector = player.Tile;
 
             if (e.Button == SButton.I)
             {
-                var smallestDistance = float.MaxValue;
-                var nearestDebrisVector = Vector2.Zero;
-                StardewValley.Object? nearestDebrisObject = null;
-                foreach (var p in currentMap.Objects.Pairs)
-                {
-
-                    var obj = p.Value;
-                    if (obj.IsBreakableStone())
-                    {
-                        var distance = Vector2.Distance(playerVector, p.Key);
-                        if (distance < smallestDistance)
-                        {
-                            smallestDistance = distance;
-                            nearestDebrisVector = p.Key;
-                            nearestDebrisObject = obj;
-                        }
-                    }
-                }
+                var (debris, vector) = FindNearestDebris(player, currentMap);
+                if (debris == null) return;
 
                 player.controller = new PathFindController(
                     c: player,
                     location: currentMap,
-                    endPoint: new Point((int)nearestDebrisVector.X + 1, (int)nearestDebrisVector.Y),
+                    endPoint: new Point((int)vector.X + 1, (int)vector.Y),
                     finalFacingDirection: 3,
-                    endBehaviorFunction: (character, location) =>
-                    {
-
-                        if (nearestDebrisObject != null && nearestDebrisObject.IsBreakableStone())
-                        {
-                            Tool? targetTool = null;
-                            foreach (var item in player.Items)
-                            {
-                                if (item is Pickaxe playerPickaxe)
-                                {
-                                    targetTool = playerPickaxe;
-                                    break;
-                                }
-                            }
-                            if (targetTool != null)
-                            {
-                                player.CurrentToolIndex = player.getIndexOfInventoryItem(targetTool);
-                                // player.faceGeneralDirection(nearestDebrisVector * 64f);
-                                
-                                
-                                player.CurrentTool.beginUsing(
-                                    player.currentLocation,
-                                    0,
-                                    0,
-                                    player
-                                );
-                                player.UsingTool = true;
-                                // player.canReleaseTool = true;
-
-                            }
-
-                        }
-
-                    }
-                );
-
+                    endBehaviorFunction: (character, location) => RemoveDebris(player, debris));
 
             }
+        }
+
+        private static (StardewValley.Object? debris, Vector2 vector) FindNearestDebris(Farmer player, GameLocation currentMap)
+        {
+            var playerVector = player.Tile;
+            var smallestDistance = float.MaxValue;
+            var nearestDebrisVector = Vector2.Zero;
+            StardewValley.Object? nearestDebrisObject = null;
+            foreach (var p in currentMap.Objects.Pairs)
+            {
+
+                var obj = p.Value;
+                if (obj.IsBreakableStone() || obj.IsTwig() || obj.IsWeeds())
+                {
+                    var distance = Vector2.Distance(playerVector, p.Key);
+                    if (distance < smallestDistance)
+                    {
+                        smallestDistance = distance;
+                        nearestDebrisVector = p.Key;
+                        nearestDebrisObject = obj;
+                    }
+                }
+            }
+            return (nearestDebrisObject, nearestDebrisVector);
+
+        }
+
+        private static Tool? SelectTool<T>(Farmer player) where T : Tool
+        {
+            foreach (var item in player.Items)
+            {
+                if (item is T playerTool)
+                {
+                    return playerTool;
+                }
+            }
+            return null;
+
+        }
+
+        private static void RemoveDebris(Farmer player, StardewValley.Object debrisObject)
+        {
+            Tool? targetTool = null;
+            if (debrisObject.IsBreakableStone())
+            {
+                targetTool = SelectTool<Pickaxe>(player);
+
+            }
+            if (debrisObject.IsTwig())
+            {
+                targetTool = SelectTool<Axe>(player);
+            }
+            if (debrisObject.IsWeeds())
+            {
+                foreach (var item in player.Items)
+                {
+                    if (item is MeleeWeapon mw)
+                    {
+                        if (mw.isScythe())
+                        {
+                            targetTool = mw;
+                        }
+                    }
+                }
+
+            }
+
+
+            if (targetTool != null)
+            {
+                player.CurrentToolIndex = player.getIndexOfInventoryItem(targetTool);
+                player.CurrentTool.beginUsing(
+                    player.currentLocation,
+                    0,
+                    0,
+                    player
+                );
+                player.UsingTool = true;
+            }
+
         }
     }
 }
