@@ -15,9 +15,8 @@ Auto remove debris in the first day.
   - [x] how to trigger the mod
   - [x] easiest way to get to a position
 - [x] work on twig 
-- [ ] work on weeds
+- [x] work on weeds
 - [ ] Make the player continuesly removing stone, until user click the I again.
-  - [ ] figure out how to make the player start the second round without user input
+  - [x] figure out how to make the player start the second round without user input
   - [ ] adjust the position around the stone, so player won't stucked much
-  - [ ] how to stop using I again?
-
+  - [ ] how to stop using `I` again?
