@@ -18,5 +18,5 @@ Auto remove debris in the first day.
 - [x] work on weeds
 - [ ] Make the player continuesly removing stone, until user click the I again.
   - [x] figure out how to make the player start the second round without user input
-  - [ ] adjust the position around the stone, so player won't stucked much
+  - [x] adjust the position around the stone, so player won't stucked much
   - [ ] how to stop using `I` again?

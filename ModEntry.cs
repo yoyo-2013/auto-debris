@@ -24,9 +24,11 @@ namespace modding
         }
 
         bool startUsingTool = false;
+        bool active = false;
 
         private void OnUpdateTicked(object? sender, UpdateTickedEventArgs e)
         {
+            
             if (!Context.IsWorldReady)
                 return;
 
@@ -42,8 +44,6 @@ namespace modding
 
                 this.Monitor.Log($"tick: stopped using tool", LogLevel.Debug);
                 startUsingTool = false;
-
-
                 var currentMap = Game1.currentLocation;
                 var (debris, vector) = FindNearestDebris(player, currentMap);
                 if (debris == null) return;
@@ -76,12 +76,10 @@ namespace modding
                     {
                         break;
                     }
-
                 }
                 player.controller = controller;
-
             }
-        }
+         } 
 
         private static int GetFacingDirection(Vector2 target, Vector2 standingPosition)
         {
@@ -119,8 +117,20 @@ namespace modding
 
             var currentMap = Game1.currentLocation;
 
-            if (e.Button == SButton.I)
+            if (e.Button != SButton.I)
+                return;
+
+            if (active)
             {
+                active = false;
+                // need to stop the action.
+                player.controller = null;
+                return;
+            }
+
+            if (!active)
+            {
+                active = true;
                 var (debris, vector) = FindNearestDebris(player, currentMap);
                 if (debris == null) return;
 
