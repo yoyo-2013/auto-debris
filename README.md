@@ -3,7 +3,8 @@
 
 ## what we want to do for this mod?
 
-Auto remove debris in the first day.
+Auto remove debris on the farm by clicking I. stop automatically removing debris by clicking I again.
+(can also work in other places like the mines but is intended for use on the farm)
 
 ## Tasks
 
